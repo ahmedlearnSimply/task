@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, must_be_immutable
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,12 +28,12 @@ class Homepage extends StatelessWidget {
       ),
       body: BlocProvider(
         create: (context) => TaskCubit(),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: formKey,
-              child: Column(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: formKey,
+            child: BlocBuilder<TaskCubit, TaskState>(
+              builder: (context, state) => Column(
                 children: [
                   TextFormField(
                     controller: taskController,
@@ -47,47 +47,68 @@ class Homepage extends StatelessWidget {
                     ),
                   ),
                   Gap(20),
-                  BlocBuilder<TaskCubit, TaskState>(
-                    builder: (context, state) {
-                      return ElevatedButton(
-                        onPressed: () {
-                          context.read<TaskCubit>().addTask(
-                                taskController.text,
-                              );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Colors.blueAccent, // Button background color
-                          foregroundColor: Colors.white, // Text color
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ), // Button padding
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(12), // Rounded corners
-                          ),
-                          elevation: 5, // Shadow elevation
-                        ),
-                        child: Text(
-                          "Add Task",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                      );
+                  ElevatedButton(
+                    onPressed: () {
+                      if (taskController.text.isEmpty == true) return;
+                      context.read<TaskCubit>().addTask(taskController.text);
+                      taskController.clear();
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Colors.blueAccent, // Button background color
+                      foregroundColor: Colors.white, // Text color
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ), // Button padding
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(12), // Rounded corners
+                      ),
+                      elevation: 5, // Shadow elevation
+                    ),
+                    child: Text(
+                      "Add Task",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                      ),
+                    ),
                   ),
                   Gap(20),
-                  ListTile(
-                    title: Text(taskController.text),
-                    leading: IconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.check_box_outline_blank_outlined,
-                      ),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: state.taskList.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text(state.taskList[index].title),
+                          trailing: IconButton(
+                            onPressed: () {
+                              context
+                                  .read<TaskCubit>()
+                                  .deleteTask(state.taskList[index].id);
+                            },
+                            icon: Icon(
+                              Icons.delete,
+                            ),
+                          ),
+                          leading: IconButton(
+                            onPressed: () {
+                              context
+                                  .read<TaskCubit>()
+                                  .toggleTask(state.taskList[index].id);
+                            },
+                            icon: state.taskList[index].isCompleted
+                                ? Icon(
+                                    Icons.check_box,
+                                  )
+                                : Icon(
+                                    Icons.check_box_outline_blank,
+                                  ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ],

@@ -17,13 +17,13 @@ class TaskCubit extends Cubit<TaskState> {
     emit(UpdateTaskState([...state.taskList, model]));
   }
 
-  deleteTask(int id) {
+  deleteTask(String id) {
     final List<TaskModel> newList =
         state.taskList.where((task) => task.id != id).toList();
     emit(UpdateTaskState(newList));
   }
 
-  toggleTask(int id) {
+  toggleTask(String id) {
     final List<TaskModel> newList = state.taskList.map((task) {
       return task.id == id
           ? task.coptWith(isCompleted: !task.isCompleted)
