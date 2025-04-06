@@ -93,20 +93,13 @@ class Homepage extends StatelessWidget {
                               Icons.delete,
                             ),
                           ),
-                          leading: IconButton(
-                            onPressed: () {
-                              context
-                                  .read<TaskCubit>()
-                                  .toggleTask(state.taskList[index].id);
-                            },
-                            icon: state.taskList[index].isCompleted
-                                ? Icon(
-                                    Icons.check_box,
-                                  )
-                                : Icon(
-                                    Icons.check_box_outline_blank,
-                                  ),
-                          ),
+                          leading: Checkbox(
+                              value: state.taskList[index].isCompleted,
+                              onChanged: (value) {
+                                context
+                                    .read<TaskCubit>()
+                                    .toggleTask(state.taskList[index].id);
+                              }),
                         );
                       },
                     ),
