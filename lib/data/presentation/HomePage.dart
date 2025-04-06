@@ -3,8 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-import 'package:task/data/cubit/task_cubit.dart';
-import 'package:task/data/cubit/task_states.dart';
+import 'package:task/data/bloc/task_bloc.dart';
+import 'package:task/data/bloc/task_event.dart';
+import 'package:task/data/bloc/task_states.dart';
 
 class Homepage extends StatelessWidget {
   Homepage({super.key});
@@ -27,12 +28,12 @@ class Homepage extends StatelessWidget {
         centerTitle: true,
       ),
       body: BlocProvider(
-        create: (context) => TaskCubit(),
+        create: (context) => TaskBloc(),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Form(
             key: formKey,
-            child: BlocBuilder<TaskCubit, TaskState>(
+            child: BlocBuilder<TaskBloc, TaskStateBloc>(
               builder: (context, state) => Column(
                 children: [
                   TextFormField(
@@ -50,7 +51,9 @@ class Homepage extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () {
                       if (taskController.text.isEmpty == true) return;
-                      context.read<TaskCubit>().addTask(taskController.text);
+                      context
+                          .read<TaskBloc>()
+                          .add(AddTaskEvent(taskController.text));
                       taskController.clear();
                     },
                     style: ElevatedButton.styleFrom(
@@ -79,26 +82,26 @@ class Homepage extends StatelessWidget {
                   Gap(20),
                   Expanded(
                     child: ListView.builder(
-                      itemCount: state.taskList.length,
+                      itemCount: state.list.length,
                       itemBuilder: (context, index) {
                         return ListTile(
-                          title: Text(state.taskList[index].title),
+                          title: Text(state.list[index].title),
                           trailing: IconButton(
                             onPressed: () {
                               context
-                                  .read<TaskCubit>()
-                                  .deleteTask(state.taskList[index].id);
+                                  .read<TaskBloc>()
+                                  .add(RemoveTaskEvent(state.list[index].id));
                             },
                             icon: Icon(
                               Icons.delete,
                             ),
                           ),
                           leading: Checkbox(
-                              value: state.taskList[index].isCompleted,
+                              value: state.list[index].isCompleted,
                               onChanged: (value) {
                                 context
-                                    .read<TaskCubit>()
-                                    .toggleTask(state.taskList[index].id);
+                                    .read<TaskBloc>()
+                                    .add(ToggleTaskEvent(state.list[index].id));
                               }),
                         );
                       },
